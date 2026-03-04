@@ -1,13 +1,12 @@
 use std::{
     fs::File,
-    os::unix::fs::{FileExt, MetadataExt},
+    os::windows::fs::{FileExt, MetadataExt},
     sync::{
         atomic::{AtomicU64, Ordering},
         Arc, Mutex,
     },
     thread,
 };
-
 /// Size of chunk that each thread will process at a time
 const CHUNK_SIZE: u64 = 16 * 1024 * 1024;
 /// How much extra space we back the chunk start up by, to ensure we capture the full initial record
@@ -89,7 +88,7 @@ fn get_aligned_buffer<'a>(file: &File, offset: u64, mut buffer: &'a mut [u8]) ->
     );
     let metadata = file.metadata()?;
     let file_size = metadata.size();
-    if offset > file_size {
+    if offset > file_size as u64 {
         return Ok(&[]);
     }
 
@@ -192,7 +191,7 @@ fn distribute_work(file: &File) -> Result<Map> {
                 let mut buffer = vec![0; (CHUNK_SIZE + CHUNK_EXCESS) as usize];
                 loop {
                     let offset = offset.fetch_add(CHUNK_SIZE, Ordering::SeqCst);
-                    if offset > file_size {
+                    if offset > file_size as u64 {
                         break;
                     }
 
