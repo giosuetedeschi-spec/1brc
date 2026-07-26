@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    os::windows::fs::{FileExt, MetadataExt},
+    os::unix::fs::{FileExt, MetadataExt},
     sync::{
         atomic::{AtomicU64, Ordering},
         Arc, Mutex,
